@@ -110,6 +110,6 @@ if __name__ == '__main__':
         choices=HistoryBasedChat.registry.keys(),
         required=True,
     )
-    parser.add_argument('--sample', '-s', help='Sample size', default=50)
+    parser.add_argument('--sample', '-s', help='Sample size', type=int, default=50)
     args = parser.parse_args()
     eval_conv_fin_qa(HistoryBasedChat.registry[args.executor], args.model, args.sample)

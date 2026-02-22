@@ -23,7 +23,14 @@ You can start a gradio based UI where you can select the document id over which 
  uv run python src/chat_ui.py
 ```
 
-### UI
+### Evaluation
 
 You can run automatic evaluation over a sample of the data (default sample size is 50).
-The script will compute a few different scores including `ROUGE`
+The script will compute a few different scores including `ROUGE`.
+
+Evaluation results for a sample of 300 tests from the train.json file:
+
+| Metric | Score |
+| ------ |------|
+| exact val | 0.44 |
+| rouge | 0.65 |
