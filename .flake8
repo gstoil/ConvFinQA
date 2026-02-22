@@ -1,0 +1,14 @@
+[flake8]
+count = yes
+eradicate-aggressive = True
+inline-quotes = single
+exclude =
+    .git
+    .venv
+    env
+format = pylint
+ignore = W503,E203,W605,C901,W291
+max-complexity=8
+max-line-length=120
+show-source = yes
+statistics = yes
