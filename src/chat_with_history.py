@@ -17,11 +17,18 @@ class HistoryBasedChat(metaclass=ABCMeta):
         pass
 
     @classmethod
+    def create(cls, name, **kwargs):
+        if name.lower() in cls.registry:
+            return cls.registry[name.lower()](**kwargs)
+        else:
+            raise ValueError(f'Unknown product type: {name}')
+
+    @classmethod
     def register(cls, name):
         """Register complete classes"""
 
         def inner(subclass):
-            cls.registry[name.lower()] = subclass
+            cls._registry[name.lower()] = subclass
             return subclass
 
         return inner

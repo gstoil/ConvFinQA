@@ -26,9 +26,9 @@ def compute_avg_scores(results):
     return {key: value / len(results) for key, value in totals.items()}
 
 
-def run_complete_test(executor_class, doc_as_string, test_case, model, scorer):
+def run_complete_test(executor_name, doc_as_string, test_case, model, scorer):
     """Run all questions over a specific document."""
-    chat_with_data = executor_class(document_as_string=doc_as_string, model=model)
+    chat_with_data = HistoryBasedChat.create(executor_name, document_as_string=doc_as_string, model=model)
     test_results = {
         'detailed_results': list(),
         'turn_program': test_case.turn_program,
@@ -50,7 +50,7 @@ def run_complete_test(executor_class, doc_as_string, test_case, model, scorer):
     return test_results
 
 
-def eval_conv_fin_qa(executor_class, model, sample_size):
+def eval_conv_fin_qa(executor_name, model, sample_size):
     data_loader = ConvFinQaOriginalLoader()
     sample_tests = random.sample(data_loader.financial_dataset, sample_size)
     scorer = Scorer()
@@ -60,7 +60,7 @@ def eval_conv_fin_qa(executor_class, model, sample_size):
         future_objs = {
             executor.submit(
                 run_complete_test,
-                executor_class,
+                executor_name,
                 data_loader.format_document(test_case),
                 test_case,
                 model,
@@ -112,4 +112,4 @@ if __name__ == '__main__':
     )
     parser.add_argument('--sample', '-s', help='Sample size', type=int, default=50)
     args = parser.parse_args()
-    eval_conv_fin_qa(HistoryBasedChat.registry[args.executor], args.model, args.sample)
+    eval_conv_fin_qa(args.executor, args.model, args.sample)

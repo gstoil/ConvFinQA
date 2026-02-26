@@ -27,7 +27,7 @@ def chat_with_history(
     # store the chat instances already generated for various docs.
     chat_instances_docs_map[doc_id] = chat_instances_docs_map.get(
         doc_id,
-        HistoryBasedChat.registry[history_strategy](document_as_string=doc_as_string, model=model),
+        HistoryBasedChat.create(history_strategy, document_as_string=doc_as_string, model=model),
     )
     response = chat_instances_docs_map[doc_id].run_single_turn(question)
     return response.answer
