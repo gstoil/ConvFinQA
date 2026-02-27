@@ -28,7 +28,7 @@ class HistoryBasedChat(metaclass=ABCMeta):
         """Register complete classes"""
 
         def inner(subclass):
-            cls._registry[name.lower()] = subclass
+            cls.registry[name.lower()] = subclass
             return subclass
 
         return inner
