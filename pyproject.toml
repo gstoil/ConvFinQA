@@ -6,9 +6,10 @@ readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
     "dotenv>=0.9.9",
-    "pydantic>=2.11.4",
-    "openai>=2.21.0",
     "gradio==6.5.1",
+    "loguru>=0.7.3",
+    "openai>=2.21.0",
+    "pydantic>=2.11.4",
 ]
 
 [project.optional-dependencies]

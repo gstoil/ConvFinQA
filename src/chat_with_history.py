@@ -1,6 +1,6 @@
 from abc import ABCMeta, abstractmethod
 from typing import List
-from prompts import system_prompt, user_prompt
+from prompts import system_prompt_default, user_prompt
 from llm_client import LLMInference, Response
 
 
@@ -10,7 +10,7 @@ class HistoryBasedChat(metaclass=ABCMeta):
     def __init__(self, document_as_string, model):
         self.llm_inference = LLMInference(model)
         self.history = []
-        self.system_prompt_compiled = system_prompt.format(report=document_as_string)
+        self.system_prompt_compiled = system_prompt_default.format(report=document_as_string)
 
     @abstractmethod
     def build_messages(self, message) -> List:

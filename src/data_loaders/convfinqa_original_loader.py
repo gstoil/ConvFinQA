@@ -2,6 +2,8 @@ import json
 import os
 from pathlib import Path
 from typing import List
+
+from loguru import logger
 from pydantic import BaseModel, RootModel, ConfigDict, field_validator
 
 
@@ -61,14 +63,12 @@ class ParsedDataset(RootModel[List[ParsedItem]]):
 
 
 class ConvFinQaOriginalLoader:
-    financial_dataset = 'data/train.json'
+    train_file = 'data/train.json'
 
-    def __init__(self):
-        with open(
-            os.path.join(Path.cwd(), self.financial_dataset),
-            'r',
-            encoding='utf-8',
-        ) as f:
+    def __init__(self, dataset_file: str = None):
+        self.dataset_file = dataset_file if dataset_file else self.train_file
+        logger.info(f'Loading dataset from {self.dataset_file}')
+        with open(os.path.join(Path.cwd(), self.dataset_file), 'r', encoding='utf-8') as f:
             dataset = json.load(f)
             self.financial_dataset = ParsedDataset.model_validate(dataset).root
 

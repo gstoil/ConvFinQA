@@ -38,7 +38,7 @@ def run_complete_test(executor_class, doc_as_string, test_case, model, scorer):
         response = chat_with_data.run_single_turn(single_question)
 
         expected_ans = test_case.exe_ans_list[i]
-        metrics = scorer.evaluation_metrics(expected_ans, response.answer)
+        metrics = scorer.evaluation_metrics(expected_ans, str(response.answer))
         test_results['detailed_results'].append(
             {
                 'question': single_question,
@@ -50,9 +50,11 @@ def run_complete_test(executor_class, doc_as_string, test_case, model, scorer):
     return test_results
 
 
-def eval_conv_fin_qa(executor_class, model, sample_size):
-    data_loader = ConvFinQaOriginalLoader()
-    sample_tests = random.sample(data_loader.financial_dataset, sample_size)
+def eval_conv_fin_qa(executor_class, model, file_name=None, sample_size=None):
+    data_loader = ConvFinQaOriginalLoader(file_name)
+    sample_tests = data_loader.financial_dataset
+    if sample_size:
+        sample_tests = random.sample(data_loader.financial_dataset, sample_size)
     scorer = Scorer()
 
     results_report = dict()
@@ -68,10 +70,7 @@ def eval_conv_fin_qa(executor_class, model, sample_size):
             ): test_case.id
             for test_case in sample_tests
         }
-        for future_obj in tqdm(
-            concurrent.futures.as_completed(future_objs),
-            total=len(future_objs),
-        ):
+        for future_obj in tqdm(concurrent.futures.as_completed(future_objs), total=len(future_objs)):
             test_results = future_obj.result()
             test_id = future_objs[future_obj]
             results_report[test_id] = test_results
@@ -96,6 +95,7 @@ def eval_conv_fin_qa(executor_class, model, sample_size):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
+    parser.add_argument('--file', '-f', help='File to use', type=str)
     parser.add_argument(
         '--model',
         '-m',
@@ -110,6 +110,6 @@ if __name__ == '__main__':
         choices=HistoryBasedChat.registry.keys(),
         required=True,
     )
-    parser.add_argument('--sample', '-s', help='Sample size', type=int, default=50)
+    parser.add_argument('--sample', '-s', help='Sample size', type=int)
     args = parser.parse_args()
-    eval_conv_fin_qa(HistoryBasedChat.registry[args.executor], args.model, args.sample)
+    eval_conv_fin_qa(HistoryBasedChat.registry[args.executor], args.model, args.file, args.sample)

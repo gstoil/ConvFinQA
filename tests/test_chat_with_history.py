@@ -8,7 +8,7 @@ from chat_with_history import (
     OpenAIStyleHistoryChat,
 )
 from llm_client import Response
-from prompts import system_prompt, user_prompt
+from prompts import system_prompt_default, user_prompt
 
 DOC = 'Revenue was $100M in 2023.'
 MODEL = 'gpt-4o'
@@ -69,7 +69,7 @@ class TestOpenAIStyleHistoryChat:
 
     def test_system_prompt_compiled_correctly(self, openai_chat):
         messages = openai_chat.build_messages('Q')
-        assert messages[0]['content'] == system_prompt.format(report=DOC)
+        assert messages[0]['content'] == system_prompt_default.format(report=DOC)
 
     def test_user_prompt_contains_question(self, openai_chat):
         question = 'What is revenue?'
@@ -169,13 +169,13 @@ class TestEmbeddedHistoryChat:
 
 class TestRunSingleTurn:
     def test_returns_response(self, openai_chat):
-        mock_response = Response(answer='100M', reason='from report')
+        mock_response = Response(answer=100, reason='from report')
         openai_chat.llm_inference.answer_question.return_value = mock_response
         result = openai_chat.run_single_turn('What is revenue?')
         assert result is mock_response
 
     def test_history_updated_after_turn(self, openai_chat):
-        mock_response = Response(answer='100M', reason='from report')
+        mock_response = Response(answer=100, reason='from report')
         openai_chat.llm_inference.answer_question.return_value = mock_response
         openai_chat.run_single_turn('What is revenue?')
         assert openai_chat.history[-2] == {
@@ -184,11 +184,11 @@ class TestRunSingleTurn:
         }
         assert openai_chat.history[-1] == {
             'role': 'assistant',
-            'content': '100M',
+            'content': 100,
         }
 
     def test_answer_question_called_with_messages(self, openai_chat):
-        mock_response = Response(answer='100M', reason='from report')
+        mock_response = Response(answer=100, reason='from report')
         openai_chat.llm_inference.answer_question.return_value = mock_response
         openai_chat.run_single_turn('What is revenue?')
         openai_chat.llm_inference.answer_question.assert_called_once()
@@ -197,16 +197,16 @@ class TestRunSingleTurn:
         assert call_args[-1]['role'] == 'user'
 
     def test_multi_turn_history_grows(self, openai_chat):
-        openai_chat.llm_inference.answer_question.return_value = Response(answer='A1', reason='')
+        openai_chat.llm_inference.answer_question.return_value = Response(answer=1, reason='')
         openai_chat.run_single_turn('Q1')
-        openai_chat.llm_inference.answer_question.return_value = Response(answer='A2', reason='')
+        openai_chat.llm_inference.answer_question.return_value = Response(answer=2, reason='')
         openai_chat.run_single_turn('Q2')
         assert len(openai_chat.history) == 4
 
     def test_second_turn_includes_first_in_messages(self, openai_chat):
-        openai_chat.llm_inference.answer_question.return_value = Response(answer='A1', reason='')
+        openai_chat.llm_inference.answer_question.return_value = Response(answer=1, reason='')
         openai_chat.run_single_turn('Q1')
-        openai_chat.llm_inference.answer_question.return_value = Response(answer='A2', reason='')
+        openai_chat.llm_inference.answer_question.return_value = Response(answer=2, reason='')
         openai_chat.run_single_turn('Q2')
         call_args = openai_chat.llm_inference.answer_question.call_args[0][0]
         contents = [m['content'] for m in call_args]
