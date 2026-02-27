@@ -25,12 +25,14 @@ You can start a gradio based UI where you can select the document id over which 
 
 ### Evaluation
 
-You can run automatic evaluation over a sample of the data (default sample size is 50).
-The script will compute a few different scores including `ROUGE`.
+You can run automatic evaluation over a sample of the data. The script will compute a few different scores including 
+exact value match, `ROUGE`, and levenshtein similarity. Evaluation results for the `dev.json` data (421 test points):
 
-Evaluation results for a sample of 300 tests from the train.json file:
+| Metric    | Score |
+|-----------|-------|
+| exact val | 0.531 |
+| rouge     | 0.760 |
+| lev_sim   | 0.714 |
 
-| Metric | Score |
-| ------ |------|
-| exact val | 0.44 |
-| rouge | 0.65 |
+Lev sim can capture cases where the difference between expected and computed answer lies in small fractions, e.g., 
+`1.04852` vs `1.04868` but could also produce false positives if the difference is like `144` vs `844`.
