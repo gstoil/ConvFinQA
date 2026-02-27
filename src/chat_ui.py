@@ -32,7 +32,7 @@ def chat_with_history(
     # Cache chat instances already generated so that they can be reused.
     chat_instances_cache[doc_id] = chat_instances_cache.get(
         doc_id,
-        HistoryBasedChat.registry[history_strategy](document_as_string=doc_as_string, model=model),
+        HistoryBasedChat.create(history_strategy, document_as_string=doc_as_string, model=model),
     )
     response = chat_instances_cache[doc_id].run_single_turn(question)
     return str(response.answer)
