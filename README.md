@@ -1,4 +1,4 @@
-# ConvFinQA Assignment
+# ConvFinQA Benchmark
 
 ## Description
 

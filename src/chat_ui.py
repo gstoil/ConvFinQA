@@ -19,13 +19,7 @@ MODEL = 'gpt-4.1-mini'
 chat_instances_cache = dict()
 
 
-def chat_with_history(
-    question,
-    history,
-    doc_id,
-    model=MODEL,
-    history_strategy='embedded_history_style',
-):
+def chat_with_history(question, history, doc_id, model=MODEL, history_strategy='embedded_history_style'):
     retrieved_doc = data_loader.find_document(doc_id)
     doc_as_string = data_loader.format_document(retrieved_doc)
 
