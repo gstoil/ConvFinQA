@@ -36,13 +36,16 @@ class Scorer:
         computed_ans = self.normalise_as_num(computed_ans)
         expected_ans = self.normalise_as_num(expected_ans)
 
+        if expected_ans == 'yes' and computed_ans == '1.0':
+            return {
+                'exact_match': 1.0,
+                'lev_sim': 1.0,
+                'rouge': 1.0,
+            }
+
         exact_match = 1 if computed_ans == expected_ans else 0
         rouge_l = self._rouge.score(expected_ans, computed_ans)['rougeL'].fmeasure
         lev_sim = self.levenshtein_sim(expected_ans, computed_ans)
-        if expected_ans == 'yes' and computed_ans == '1.0':
-            exact_match = 1
-            rouge_l = 1
-            lev_sim = 1
 
         return {
             'exact_match': exact_match,

@@ -14,8 +14,8 @@ return '6.5' without the 'billion'.
 put first the number that appeared first. 
 - If you think that years or dates are not specified clearly enough in the question, then take the earliest and the 
 latest year to compute changes or differences.
-- When computing differences you MUST maintain the order by which values appears in the history. For example, if 
-question says 'what is the differences between the two', then when doing val1-val2 val1 is the value mentioned before val2.
+- When performing calculations you MUST maintain the order by which values appears in the history. For example, if the
+question says "what is the differences between the two", then when doing val1-val2, val1 must be mentioned before val2.
 - Always return a number. Even if the question asks for percentage do not return something like 14.1%. Return 0.141
 - Do not round numbers. Go up to 5 precision points.
 - Do not return net differences. Also return negative numbers.
@@ -31,4 +31,3 @@ then check if the answer can be computed using some value from the text and/or a
 user_prompt = """User final question: {question}. Be extremely concise and only respond with the answer to the question. 
 Don't explain anything and don't use text in your answer. Also return a reason for your answer.
 """
-

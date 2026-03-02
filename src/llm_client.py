@@ -5,8 +5,10 @@ from pydantic import BaseModel, Field
 
 
 class Response(BaseModel):
-    answer: float = Field(description='The answer to the user question. It needs to be a float even if question '
-                                      'is asking for some percentage.')
+    answer: float = Field(
+        description='The answer to the user question. It needs to be a float even if question '
+        'is asking for some percentage.'
+    )
     reason: str = Field(description='The reason for your answer', default='')
 
 

@@ -85,11 +85,7 @@ def eval_conv_fin_qa(executor_name, model, file_name=None, sample_size=None):
             totals[key] += value
     results_report['total_avg_scores'] = {key: value / len(results_report) for key, value in totals.items()}
 
-    with open(
-        f'scripts/results_{datetime.today().strftime("%Y_%m_%d-%H_%M_%S")}',
-        'w',
-        encoding='utf-8',
-    ) as f:
+    with open(f'scripts/results_{datetime.today().strftime("%Y_%m_%d-%H_%M_%S")}', 'w', encoding='utf-8') as f:
         json.dump(results_report, f, ensure_ascii=False)
 
 
