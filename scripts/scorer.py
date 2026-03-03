@@ -28,9 +28,13 @@ class Scorer:
                 s = s.replace('%', '')
                 percent = 100
             s = float(s)
-            return str(s / percent)
+            return s / percent
         except (ValueError, TypeError):
             return s
+
+    @staticmethod
+    def relative_difference(value1, value2):
+        return abs(value1 - value2) / max(value1, value2)
 
     def evaluation_metrics(self, expected_ans: str, computed_ans: str) -> Dict[str, float]:
         computed_ans = self.normalise_as_num(computed_ans)
@@ -43,12 +47,14 @@ class Scorer:
                 'rouge': 1.0,
             }
 
-        exact_match = 1 if computed_ans == expected_ans else 0
-        rouge_l = self._rouge.score(expected_ans, computed_ans)['rougeL'].fmeasure
-        lev_sim = self.levenshtein_sim(expected_ans, computed_ans)
+        exact_value_match = int(computed_ans == expected_ans)
+        rouge_l = self._rouge.score(str(expected_ans), str(computed_ans))['rougeL'].fmeasure
+        lev_sim = self.levenshtein_sim(str(expected_ans), str(computed_ans))
+        relatively_equal = int(self.relative_difference(expected_ans, computed_ans) <= 0.02)
 
         return {
-            'exact_match': exact_match,
+            'exact_match': exact_value_match,
+            'relatively_equal': relatively_equal,
             'lev_sim': lev_sim,
             'rouge': rouge_l,
         }

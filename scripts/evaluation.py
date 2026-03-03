@@ -50,13 +50,7 @@ def run_complete_test(executor_name, doc_as_string, test_case, model, scorer):
     return test_results
 
 
-def eval_conv_fin_qa(executor_name, model, file_name=None, sample_size=None):
-    data_loader = ConvFinQaOriginalLoader(file_name)
-    sample_tests = data_loader.financial_dataset
-    if sample_size:
-        sample_tests = random.sample(data_loader.financial_dataset, sample_size)
-    scorer = Scorer()
-
+def run_in_parallel(executor_name, data_loader, scorer, model, sample_tests):
     results_report = dict()
     with concurrent.futures.ThreadPoolExecutor(max_workers=4) as executor:
         future_objs = {
@@ -75,6 +69,31 @@ def eval_conv_fin_qa(executor_name, model, file_name=None, sample_size=None):
             test_id = future_objs[future_obj]
             results_report[test_id] = test_results
             results_report[test_id]['avg_scores'] = compute_avg_scores(test_results['detailed_results'])
+    return results_report
+
+
+def run_in_sequence(executor_name, data_loader, scorer, model, sample_tests):
+    results_report = dict()
+    for test_case in tqdm(sample_tests):
+        test_results = run_complete_test(
+            executor_name, data_loader.format_document(test_case), test_case, model, scorer
+        )
+        results_report[test_case.id] = test_results
+        results_report[test_case.id]['avg_scores'] = compute_avg_scores(test_results['detailed_results'])
+    return results_report
+
+
+def eval_conv_fin_qa(executor_name, model, file_name=None, sample_size=None, parallel_exec=True):
+    data_loader = ConvFinQaOriginalLoader(file_name)
+    sample_tests = data_loader.financial_dataset
+    if sample_size:
+        sample_tests = random.sample(data_loader.financial_dataset, sample_size)
+    scorer = Scorer()
+
+    if parallel_exec:
+        results_report = run_in_parallel(executor_name, data_loader, scorer, model, sample_tests)
+    else:
+        results_report = run_in_sequence(executor_name, data_loader, scorer, model, sample_tests)
 
     results_report = dict(sorted(results_report.items()))
 
