@@ -6,6 +6,7 @@ import random
 from collections import defaultdict
 
 import dotenv
+from loguru import logger
 from tqdm import tqdm
 from data_loaders.convfinqa_original_loader import ConvFinQaOriginalLoader
 from document_analysers.abstract_history_chat import HistoryBasedChat
@@ -73,23 +74,24 @@ def run_in_parallel(executor_name, scorer, model, sample_tests):
 def run_in_sequence(executor_name, scorer, model, sample_tests):
     results_report = dict()
     for test_case in tqdm(sample_tests):
+        logger.debug(f'Run doc test: {test_case.id} contains: {len(test_case.dialogue_break)} questions.')
         test_results = run_complete_test(executor_name, test_case, model, scorer)
         results_report[test_case.id] = test_results
         results_report[test_case.id]['avg_scores'] = compute_avg_scores(test_results['detailed_results'])
     return results_report
 
 
-def eval_conv_fin_qa(executor_name, model, file_name=None, sample_size=None, parallel_exec=True):
+def eval_conv_fin_qa(executor_name, model, file_name=None, sample_size=None, serial_exec=False):
     data_loader = ConvFinQaOriginalLoader(file_name)
     sample_tests = data_loader.financial_dataset
     if sample_size:
         sample_tests = random.sample(data_loader.financial_dataset, sample_size)
     scorer = Scorer()
 
-    if parallel_exec:
-        results_report = run_in_parallel(executor_name, scorer, model, sample_tests)
-    else:
+    if serial_exec:
         results_report = run_in_sequence(executor_name, scorer, model, sample_tests)
+    else:
+        results_report = run_in_parallel(executor_name, scorer, model, sample_tests)
 
     results_report = dict(sorted(results_report.items()))
 
@@ -122,5 +124,6 @@ if __name__ == '__main__':
         required=True,
     )
     parser.add_argument('--sample', '-s', help='Sample size', type=int)
+    parser.add_argument('--serial', '-es', help='Execute serial', action='store_true', default=False)
     args = parser.parse_args()
-    eval_conv_fin_qa(args.executor, args.model, args.file, args.sample)
+    eval_conv_fin_qa(args.executor, args.model, args.file, args.sample, args.serial)

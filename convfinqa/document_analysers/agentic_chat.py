@@ -138,6 +138,6 @@ class LangGraphChat(HistoryBasedChat):
         return {'final_answer': response.model_dump(), 'history': new_history}
 
     def run_single_turn(self, message) -> Response:
-        config = {'configurable': {'thread_id': 'user123'}}
+        config = {'configurable': {'thread_id': self.document.id}}
         result = self.app.invoke({'question': message}, config=config)
         return Response(**result['final_answer'])

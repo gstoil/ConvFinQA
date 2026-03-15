@@ -34,7 +34,9 @@ class Scorer:
 
     @staticmethod
     def relative_difference(value1, value2):
-        return abs(value1 - value2) / max(value1, value2)
+        if value1 == value2:
+            return 0
+        return abs(value1 - value2) / max(abs(value1), abs(value2))
 
     def evaluation_metrics(self, expected_ans: str, computed_ans: str) -> Dict[str, float]:
         computed_ans = self.normalise_as_num(computed_ans)
