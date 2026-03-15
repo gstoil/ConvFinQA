@@ -9,15 +9,16 @@ from llm_client import Response
 
 class QAItem(TypedDict):
     question: str
-    answer: Response
+    answer: str
+    reason: str
 
 
 class FinancialState(TypedDict):
     question: str
 
-    table_answer: Optional[Response]
-    text_answer: Optional[Response]
-    final_answer: Optional[Response]
+    table_answer: Optional[dict]
+    text_answer: Optional[dict]
+    final_answer: Optional[dict]
 
     history: List[QAItem]
 
@@ -80,7 +81,7 @@ class LangGraphChat(HistoryBasedChat):
 
         response = self.table_llm_with_output.invoke(prompt)
 
-        return {'table_answer': response}
+        return {'table_answer': response.model_dump()}
 
     def text_agent(self, state: FinancialState):
         question = state['question']
@@ -107,7 +108,7 @@ class LangGraphChat(HistoryBasedChat):
 
         response = self.text_llm_with_output.invoke(prompt)
 
-        return {'text_answer': response}
+        return {'text_answer': response.model_dump()}
 
     def aggregator(self, state: FinancialState):
         question = state['question']
@@ -119,21 +120,24 @@ class LangGraphChat(HistoryBasedChat):
         {question}
 
         Answer from table agent and its reasoning:
-        {table_answer.answer} {table_answer.reason}
+        {table_answer['answer']} {table_answer['reason']}
 
         Answer from text agent:
-        {text_answer.answer} {text_answer.reason}
+        {text_answer['answer']} {text_answer['reason']}
 
         Choose the best answer or combine them.
         """
 
         response = self.aggregator_llm_with_output.invoke(prompt)
 
-        new_history = history + [{'question': question, 'answer': response}]
+        response_dict = response.model_dump()
+        new_history = history + [
+            {'question': question, 'answer': response_dict['answer'], 'reason': response_dict['reason']}
+        ]
 
-        return {'final_answer': response, 'history': new_history}
+        return {'final_answer': response.model_dump(), 'history': new_history}
 
     def run_single_turn(self, message) -> Response:
         config = {'configurable': {'thread_id': 'user123'}}
         result = self.app.invoke({'question': message}, config=config)
-        return result['final_answer']
+        return Response(**result['final_answer'])

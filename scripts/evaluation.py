@@ -49,7 +49,7 @@ def run_complete_test(executor_name, test_case, model, scorer):
     return test_results
 
 
-def run_in_parallel(executor_name, data_loader, scorer, model, sample_tests):
+def run_in_parallel(executor_name, scorer, model, sample_tests):
     results_report = dict()
     with concurrent.futures.ThreadPoolExecutor(max_workers=4) as executor:
         future_objs = {
@@ -70,7 +70,7 @@ def run_in_parallel(executor_name, data_loader, scorer, model, sample_tests):
     return results_report
 
 
-def run_in_sequence(executor_name, data_loader, scorer, model, sample_tests):
+def run_in_sequence(executor_name, scorer, model, sample_tests):
     results_report = dict()
     for test_case in tqdm(sample_tests):
         test_results = run_complete_test(executor_name, test_case, model, scorer)
@@ -87,9 +87,9 @@ def eval_conv_fin_qa(executor_name, model, file_name=None, sample_size=None, par
     scorer = Scorer()
 
     if parallel_exec:
-        results_report = run_in_parallel(executor_name, data_loader, scorer, model, sample_tests)
+        results_report = run_in_parallel(executor_name, scorer, model, sample_tests)
     else:
-        results_report = run_in_sequence(executor_name, data_loader, scorer, model, sample_tests)
+        results_report = run_in_sequence(executor_name, scorer, model, sample_tests)
 
     results_report = dict(sorted(results_report.items()))
 
