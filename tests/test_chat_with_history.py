@@ -2,11 +2,10 @@ from unittest.mock import patch
 
 import pytest
 
-from chat_with_history import (
-    EmbeddedHistoryChat,
+from document_analysers import (
     HistoryBasedChat,
-    OpenAIStyleHistoryChat,
 )
+from document_analysers import OpenAIStyleHistoryChat, EmbeddedHistoryChat
 from llm_client import Response
 from prompts import system_prompt_default, user_prompt
 

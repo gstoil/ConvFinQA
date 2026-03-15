@@ -1,3 +1,4 @@
+from document_analysers import BaselineInContextChat
 from data_loaders.convfinqa_original_loader import (
     ConvFinQaOriginalLoader,
     ParsedItem,
@@ -10,7 +11,7 @@ def longest_doc(financial_dataset) -> ParsedItem:
         (
             len(conv_fin_record.pre_text)
             + len(conv_fin_record.post_text)
-            + len(str(ConvFinQaOriginalLoader.table_to_json(conv_fin_record.table_ori))),
+            + len(str(BaselineInContextChat.table_to_json(conv_fin_record.table_ori))),
             conv_fin_record,
         )
         for conv_fin_record in financial_dataset

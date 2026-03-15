@@ -20,7 +20,7 @@ uv sync
 
 You can start a gradio based UI where you can select the document id over which you want to ask questions.
 ```bash
- uv run python src/chat_ui.py
+ uv run python convfinqa/chat_ui.py
 ```
 
 ### Evaluation
