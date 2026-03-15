@@ -48,10 +48,7 @@ class BaselineInContextChat(HistoryBasedChat, metaclass=ABCMeta):
 
     def format_document(self, data_record: ParsedItem) -> str:
         return (
-            data_record.pre_text
-            + '\n'
-            + f'<table>\n{str(self.table_to_json(data_record.table_ori))}\n</table>\n'
-            + data_record.post_text
+            data_record.pre_text + '\n' + f'<table>\n{str(data_record.table_json)}\n</table>\n' + data_record.post_text
         )
 
     @abstractmethod
@@ -64,33 +61,6 @@ class BaselineInContextChat(HistoryBasedChat, metaclass=ABCMeta):
         response = self.llm_inference.answer_question(messages)
         self.update_history(message, response.answer)
         return response
-
-    @staticmethod
-    def table_to_json(table: list[list[str]]) -> dict:
-        if len(table) < 2:
-            return {}
-
-        headers = [h.strip() for h in table[0][1:]]
-
-        def parse_number(value: str) -> float:
-            value = value.strip()
-            if value.startswith('(') and value.endswith(')'):
-                value = '-' + value[1:-1]
-            value = value.replace('$', '').replace(',', '')
-            return float(value)
-
-        result = {header: {} for header in headers}
-
-        for row in table[1:]:
-            metric = row[0].strip().lower()
-            for i, header in enumerate(headers):
-                if i + 1 < len(row):
-                    try:
-                        result[header][metric] = parse_number(row[i + 1])
-                    except Exception:
-                        continue
-
-        return result
 
 
 @HistoryBasedChat.register('openai_history_style')

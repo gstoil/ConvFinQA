@@ -1,4 +1,3 @@
-from document_analysers import BaselineInContextChat
 from data_loaders.convfinqa_original_loader import (
     ConvFinQaOriginalLoader,
     ParsedItem,
@@ -9,9 +8,7 @@ import tiktoken
 def longest_doc(financial_dataset) -> ParsedItem:
     docs_to_lengths = [
         (
-            len(conv_fin_record.pre_text)
-            + len(conv_fin_record.post_text)
-            + len(str(BaselineInContextChat.table_to_json(conv_fin_record.table_ori))),
+            len(conv_fin_record.pre_text) + len(conv_fin_record.post_text) + len(str(conv_fin_record.table_json)),
             conv_fin_record,
         )
         for conv_fin_record in financial_dataset

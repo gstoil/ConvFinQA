@@ -4,7 +4,34 @@ from pathlib import Path
 from typing import List
 
 from loguru import logger
-from pydantic import BaseModel, RootModel, ConfigDict, field_validator
+from pydantic import BaseModel, RootModel, ConfigDict, computed_field, field_validator
+
+
+def table_to_json(table: list[list[str]]) -> dict:
+    if len(table) < 2:
+        return {}
+
+    headers = [h.strip() for h in table[0][1:]]
+
+    def parse_number(value: str) -> float:
+        value = value.strip()
+        if value.startswith('(') and value.endswith(')'):
+            value = '-' + value[1:-1]
+        value = value.replace('$', '').replace(',', '')
+        return float(value)
+
+    result = {header: {} for header in headers}
+
+    for row in table[1:]:
+        metric = row[0].strip().lower()
+        for i, header in enumerate(headers):
+            if i + 1 < len(row):
+                try:
+                    result[header][metric] = parse_number(row[i + 1])
+                except Exception:
+                    continue
+
+    return result
 
 
 class Annotation(BaseModel):
@@ -44,6 +71,11 @@ class ParsedItem(BaseModel):
         if isinstance(v, list):
             return ' '.join(v).strip()
         return v
+
+    @computed_field
+    @property
+    def table_json(self) -> dict:
+        return table_to_json(self.table_ori)
 
     @property
     def dialogue_break(self) -> List[str]:

@@ -7,6 +7,7 @@ class HistoryBasedChat(metaclass=ABCMeta):
     registry = {}
 
     def __init__(self, document: ParsedItem, model):
+        self.model = model
         self.llm_inference = LLMInference(model)
         self.history = []
         self.document = document
