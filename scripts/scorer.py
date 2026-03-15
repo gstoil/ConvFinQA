@@ -36,6 +36,8 @@ class Scorer:
     def relative_difference(value1, value2):
         if value1 == value2:
             return 0
+        if isinstance(value1, str) or isinstance(value2, str):
+            return 1.0
         return abs(value1 - value2) / max(abs(value1), abs(value2))
 
     def evaluation_metrics(self, expected_ans: str, computed_ans: str) -> Dict[str, float]:
