@@ -1,6 +1,4 @@
 from abc import ABCMeta, abstractmethod
-from typing import List
-
 from data_loaders.convfinqa_original_loader import ParsedItem
 from llm_client import LLMInference, Response
 
@@ -12,10 +10,6 @@ class HistoryBasedChat(metaclass=ABCMeta):
         self.llm_inference = LLMInference(model)
         self.history = []
         self.document = document
-
-    @abstractmethod
-    def build_messages(self, message) -> List:
-        pass
 
     @classmethod
     def create(cls, name, **kwargs):
@@ -34,12 +28,9 @@ class HistoryBasedChat(metaclass=ABCMeta):
 
         return inner
 
+    @abstractmethod
     def run_single_turn(self, message) -> Response:
-        """Uses LLM to answer a single question based on past history and then records answer to history"""
-        messages = self.build_messages(message)
-        response = self.llm_inference.answer_question(messages)
-        self.update_history(message, response.answer)
-        return response
+        pass
 
     def update_history(self, message, response) -> None:
         self.history.extend(

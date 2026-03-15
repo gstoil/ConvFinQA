@@ -2,12 +2,15 @@ from unittest.mock import patch
 
 import pytest
 
-from document_analysers import (
-    HistoryBasedChat,
+from document_analysers.abstract_history_chat import HistoryBasedChat
+from document_analysers.baseline_incontext_chat import (
+    OpenAIStyleHistoryChat,
+    EmbeddedHistoryChat,
+    BaselineInContextChat,
+    user_prompt,
+    system_prompt_default,
 )
-from document_analysers import OpenAIStyleHistoryChat, EmbeddedHistoryChat
 from llm_client import Response
-from prompts import system_prompt_default, user_prompt
 
 DOC = 'Revenue was $100M in 2023.'
 MODEL = 'gpt-4o'
@@ -15,14 +18,18 @@ MODEL = 'gpt-4o'
 
 @pytest.fixture
 def openai_chat():
-    with patch('chat_with_history.LLMInference'):
-        return OpenAIStyleHistoryChat(DOC, MODEL)
+    with patch('document_analysers.abstract_history_chat.LLMInference'), patch.object(
+        BaselineInContextChat, 'format_document', return_value=DOC
+    ):
+        return OpenAIStyleHistoryChat(document=DOC, model=MODEL)
 
 
 @pytest.fixture
 def embedded_chat():
-    with patch('chat_with_history.LLMInference'):
-        return EmbeddedHistoryChat(document_as_string=DOC, model=MODEL)
+    with patch('document_analysers.abstract_history_chat.LLMInference'), patch.object(
+        BaselineInContextChat, 'format_document', return_value=DOC
+    ):
+        return EmbeddedHistoryChat(document=DOC, model=MODEL)
 
 
 class TestRegistry:
