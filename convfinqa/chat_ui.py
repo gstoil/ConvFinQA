@@ -3,11 +3,10 @@ import os
 import dotenv
 import gradio as gr
 
-from data_loaders.convfinqa_original_loader import ConvFinQaOriginalLoader
-from document_analysers.abstract_history_chat import HistoryBasedChat
+from convfinqa.data_loaders.convfinqa_original_loader import ConvFinQaOriginalLoader
+from convfinqa.document_analysers.abstract_history_chat import HistoryBasedChat
 
 dotenv.load_dotenv('.env')
-
 
 financial_data_file = os.environ.get('FINANCIAL_DATA_FILE', ConvFinQaOriginalLoader.train_file)
 
