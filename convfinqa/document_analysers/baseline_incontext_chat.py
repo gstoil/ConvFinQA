@@ -1,9 +1,9 @@
 from abc import ABCMeta, abstractmethod
 from typing import List
 
-from data_loaders.convfinqa_original_loader import ParsedItem
-from document_analysers.abstract_history_chat import HistoryBasedChat
-from llm_client import Response
+from convfinqa.data_loaders.convfinqa_original_loader import ParsedItem
+from convfinqa.document_analysers.abstract_history_chat import HistoryBasedChat
+from convfinqa.llm_client import Response
 
 system_prompt_default = """You are a financial analyst. You will be given a financial report that consists of text as 
 well as possibly a table formatted as json that contains further financial data. You will also be given a history of a 

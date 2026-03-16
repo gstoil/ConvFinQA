@@ -3,8 +3,9 @@ from langchain_openai import ChatOpenAI
 from langgraph.checkpoint.memory import MemorySaver
 from langgraph.constants import START
 from langgraph.graph import StateGraph
-from document_analysers.abstract_history_chat import HistoryBasedChat
-from llm_client import Response
+
+from convfinqa.document_analysers.abstract_history_chat import HistoryBasedChat
+from convfinqa.llm_client import Response
 
 
 class QAItem(TypedDict):

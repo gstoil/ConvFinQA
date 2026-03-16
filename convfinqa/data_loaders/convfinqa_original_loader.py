@@ -95,9 +95,7 @@ class ParsedDataset(RootModel[List[ParsedItem]]):
 
 
 class ConvFinQaOriginalLoader:
-    train_file = 'data/train.json'
-
-    def __init__(self, dataset_file: str = None):
+    def __init__(self, dataset_file: str):
         self.dataset_file = dataset_file if dataset_file else self.train_file
         logger.info(f'Loading dataset from {self.dataset_file}')
         with open(os.path.join(Path.cwd(), self.dataset_file), 'r', encoding='utf-8') as f:

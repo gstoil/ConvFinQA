@@ -8,8 +8,9 @@ from collections import defaultdict
 import dotenv
 from loguru import logger
 from tqdm import tqdm
-from data_loaders.convfinqa_original_loader import ConvFinQaOriginalLoader
-from document_analysers.abstract_history_chat import HistoryBasedChat
+
+from convfinqa.data_loaders.convfinqa_original_loader import ConvFinQaOriginalLoader
+from convfinqa.document_analysers.abstract_history_chat import HistoryBasedChat
 from scripts.scorer import Scorer
 
 

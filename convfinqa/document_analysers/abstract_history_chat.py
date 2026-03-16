@@ -1,6 +1,7 @@
 from abc import ABCMeta, abstractmethod
-from data_loaders.convfinqa_original_loader import ParsedItem
-from llm_client import LLMInference, Response
+
+from convfinqa.data_loaders.convfinqa_original_loader import ParsedItem
+from convfinqa.llm_client import LLMInference, Response
 
 
 class HistoryBasedChat(metaclass=ABCMeta):

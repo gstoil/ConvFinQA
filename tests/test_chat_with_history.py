@@ -2,15 +2,15 @@ from unittest.mock import patch
 
 import pytest
 
-from document_analysers.abstract_history_chat import HistoryBasedChat
-from document_analysers.baseline_incontext_chat import (
+from convfinqa.document_analysers.abstract_history_chat import HistoryBasedChat
+from convfinqa.document_analysers.baseline_incontext_chat import (
+    BaselineInContextChat,
     OpenAIStyleHistoryChat,
     EmbeddedHistoryChat,
-    BaselineInContextChat,
-    user_prompt,
     system_prompt_default,
+    user_prompt,
 )
-from llm_client import Response
+from convfinqa.llm_client import Response
 
 DOC = 'Revenue was $100M in 2023.'
 MODEL = 'gpt-4o'
