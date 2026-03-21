@@ -1,4 +1,3 @@
-from typing import TypedDict, Optional, List
 from langchain_openai import ChatOpenAI
 from langgraph.checkpoint.memory import MemorySaver
 from langgraph.constants import START, END
@@ -7,6 +6,7 @@ from pydantic import Field
 
 from convfinqa.document_analysers.abstract_history_chat import HistoryBasedChat
 from convfinqa.llm_client import Response
+from document_analysers.langgraph.langgraph_chat import LangGraphChatter, FinancialState
 
 
 class ExtendedResponse(Response):
@@ -15,41 +15,24 @@ class ExtendedResponse(Response):
     )
 
 
-class QAItem(TypedDict):
-    question: str
-    answer: str
-    reason: str
+@HistoryBasedChat.register('langgraph_table_oracle')
+class LangGraphTableOracleChat(LangGraphChatter):
+    """
+    Uses a main agent to check if it can answer question from text otherwise
+    it can call a table agent to return answer based on the table.
+    """
 
-
-class FinancialState(TypedDict):
-    question: str
-
-    table_answer: Optional[dict]
-    text_answer: Optional[dict]
-    final_answer: Optional[dict]
-
-    route: Optional[str]
-
-    history: List[QAItem]
-
-
-@HistoryBasedChat.register('langgraph_chat')
-class LangGraphChat(HistoryBasedChat):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-        graph = StateGraph(FinancialState)
-
-        # Step 3
         table_llm = ChatOpenAI(model=self.model)
         self.table_llm_with_output = table_llm.with_structured_output(Response)
 
         text_llm = ChatOpenAI(model=self.model)
         self.text_llm_with_output = text_llm.with_structured_output(ExtendedResponse)
 
-        aggregator_llm = ChatOpenAI(model=self.model)
-        self.aggregator_llm_with_output = aggregator_llm.with_structured_output(Response)
-
+    def build_graph(self):
+        graph = StateGraph(FinancialState)
         graph.add_node('table_agent', self.table_agent)
         graph.add_node('text_agent', self.text_agent)
 
@@ -63,16 +46,7 @@ class LangGraphChat(HistoryBasedChat):
 
         # Step 5 add memory
         memory = MemorySaver()
-        self.app = graph.compile(checkpointer=memory)
-
-    def build_parallel_agents_graph(self, graph):
-        # Parallel scheme of table_agent and text_agent with an aggregator at the end
-        graph.add_edge(START, 'table_agent')
-        graph.add_edge(START, 'text_agent')
-        graph.add_node('aggregator', self.aggregator)
-        graph.add_edge('table_agent', 'aggregator')
-        graph.add_edge('text_agent', 'aggregator')
-        return graph
+        return graph.compile(checkpointer=memory)
 
     def table_agent(self, state: FinancialState):
         question = state['question']
@@ -163,33 +137,6 @@ class LangGraphChat(HistoryBasedChat):
             return {'route': 'table'}
 
         return {'final_answer': response.model_dump(), 'route': 'done'}
-
-    def aggregator(self, state: FinancialState):
-        question = state['question']
-        table_answer = state['table_answer']
-        text_answer = state['text_answer']
-        history = state.get('history', [])
-
-        prompt = f"""Question:
-        {question}
-
-        Answer from table agent and its reasoning:
-        {table_answer['answer']} {table_answer['reason']}
-
-        Answer from text agent:
-        {text_answer['answer']} {text_answer['reason']}
-
-        Choose the best answer or combine them.
-        """
-
-        response = self.aggregator_llm_with_output.invoke(prompt)
-
-        response_dict = response.model_dump()
-        new_history = history + [
-            {'question': question, 'answer': response_dict['answer'], 'reason': response_dict['reason']}
-        ]
-
-        return {'final_answer': response.model_dump(), 'history': new_history}
 
     def run_single_turn(self, message) -> Response:
         config = {'configurable': {'thread_id': self.document.id}}
