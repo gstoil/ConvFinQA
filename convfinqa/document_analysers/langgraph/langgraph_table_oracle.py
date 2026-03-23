@@ -1,12 +1,11 @@
 from langchain_openai import ChatOpenAI
-from langgraph.checkpoint.memory import MemorySaver
 from langgraph.constants import START, END
 from langgraph.graph import StateGraph
 from pydantic import Field
 
 from convfinqa.document_analysers.abstract_history_chat import HistoryBasedChat
+from convfinqa.document_analysers.langgraph.langgraph_chat import LangGraphChatter, FinancialState
 from convfinqa.llm_client import Response
-from document_analysers.langgraph.langgraph_chat import LangGraphChatter, FinancialState
 
 
 class ExtendedResponse(Response):
@@ -44,9 +43,7 @@ class LangGraphTableOracleChat(LangGraphChatter):
         # important: go back to text_agent
         graph.add_edge('table_agent', 'text_agent')
 
-        # Step 5 add memory
-        memory = MemorySaver()
-        return graph.compile(checkpointer=memory)
+        return graph
 
     def table_agent(self, state: FinancialState):
         question = state['question']
@@ -140,5 +137,5 @@ class LangGraphTableOracleChat(LangGraphChatter):
 
     def run_single_turn(self, message) -> Response:
         config = {'configurable': {'thread_id': self.document.id}}
-        result = self.app.invoke({'question': message}, config=config)
+        result = self.compiled_graph.invoke({'question': message}, config=config)
         return Response(**result['final_answer'])

@@ -3,8 +3,8 @@ from langgraph.constants import START
 from langgraph.graph import StateGraph
 
 from convfinqa.document_analysers.abstract_history_chat import HistoryBasedChat
-from document_analysers.langgraph.langgraph_chat import LangGraphChatter, FinancialState
-from llm_client import Response
+from convfinqa.document_analysers.langgraph.langgraph_chat import LangGraphChatter, FinancialState
+from convfinqa.llm_client import Response
 
 
 @HistoryBasedChat.register('langgraph_parallel_agents')

@@ -1,8 +1,11 @@
 from abc import abstractmethod
 from typing import TypedDict, Optional, List
 
-from document_analysers.abstract_history_chat import HistoryBasedChat
-from llm_client import Response
+from langgraph.checkpoint.memory import MemorySaver
+from langgraph.graph import StateGraph
+
+from convfinqa.document_analysers.abstract_history_chat import HistoryBasedChat
+from convfinqa.llm_client import Response
 
 
 class QAItem(TypedDict):
@@ -26,13 +29,16 @@ class FinancialState(TypedDict):
 class LangGraphChatter(HistoryBasedChat):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.app = self.build_graph()
+        graph = self.build_graph()
+
+        memory = MemorySaver()
+        self.compiled_graph = graph.compile(checkpointer=memory)
 
     @abstractmethod
-    def build_graph(self):
+    def build_graph(self) -> StateGraph:
         pass
 
     def run_single_turn(self, message) -> Response:
         config = {'configurable': {'thread_id': self.document.id}}
-        result = self.app.invoke({'question': message}, config=config)
+        result = self.compiled_graph.invoke({'question': message}, config=config)
         return Response(**result['final_answer'])
